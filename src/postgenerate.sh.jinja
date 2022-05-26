@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[ -n "${DEBUG:-}" ] && set -x
+
+GREEN="\033[32m"
+RESET="\033[0m"
+
+rm -- "$0" # Self destruct
+
+# If already initialized, abort
+if [ -d .git ] || [ -n "${COPIER_SKIP_INIT:-}" ]; then
+    exit 0
+fi
+
+echo -n "Initializing git..."
+git init -q
+git add --all
+git commit -qm 'initial commit'
+echo -e " ${GREEN}✔${RESET}"
+
+# Direnv
+[ -x "$(command -v direnv)" ] && touch .envrc && direnv allow
+
+cat <<EOF
+Done!
+
+To create your repo:
+    $ gh repo create -y {{repo_username}}/{{repo_name}} {% if private %}--private{% else %}--public{% endif %}
+
+To create your PAT:
+    $ gh secret set GH_PAT -b \$TOKEN
+EOF

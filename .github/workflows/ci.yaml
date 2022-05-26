@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+      - name: Run test
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          pipx run copier -f . build/ && cd build/
+          deno lint
+      - name: Push rendered project
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          REMOTE=https://${GITHUB_ACTOR}:${{ secrets.GH_PAT }}@github.com/${GITHUB_REPOSITORY}.git
+          git -C build push -fu $REMOTE HEAD:rendered

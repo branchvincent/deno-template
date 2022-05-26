@@ -1,0 +1,21 @@
+# Params
+project_name: #^[a-zA-Z][_a-zA-Z0-9]+$
+  type: str
+  default: project_name
+project_description:
+  type: str
+  default: "{{ project_name.capitalize() | replace('_', ' ') }}"
+repo_username:
+  type: str
+  default: branchvincent
+repo_name:
+  type: str
+  default: "{{ project_name | lower | replace(' ', '-') | replace('_', '-') }}"
+
+# Internal config
+_subdirectory: src
+_skip_if_exists:
+  - deno.jsonc
+_min_copier_version: 6.0.0
+_tasks:
+  - bash postgenerate.sh
